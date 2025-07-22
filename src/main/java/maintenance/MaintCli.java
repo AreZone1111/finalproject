@@ -7,28 +7,31 @@ import java.util.List;
 public class MaintCli {
 
     public static void main(String[] args) {
+    	//create a gRPC channel to connect to the server on port 50058 
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 50058)
                 .usePlaintext()
                 .build();
-
+        //this is an asynchronous stub for maintenanceservice
         MaintenanceServiceGrpc.MaintenanceServiceStub stub = MaintenanceServiceGrpc.newStub(channel);
-
+        //creating streamobserver for recieving  responses form server
         StreamObserver<MaintenanceRequest> requestObserver = stub.manageReports(new StreamObserver<MaintenanceResponse>() {
             @Override
             public void onNext(MaintenanceResponse response) {
-                System.out.println("Received response:");
+                System.out.println("Received respons:");
                 System.out.println("Action: " + response.getAction());
                 System.out.println("Note: " + response.getTechnicianNote());
-                System.out.println("---------------------"); //added line breaker for better visual
+                System.out.println("-----------------"); //added line breaker for better visual
             }
 
             @Override
             public void onError(Throwable t) {
-                System.err.println("Error response: " + t.getMessage());
+            	 //for errors in the communication
+                System.err.println("Error in response: " + t.getMessage());
             }
 
             @Override
             public void onCompleted() {
+            	//this is  when the server has finished sending response
                 System.out.println("Report stream done.");
                 channel.shutdown();
             }
@@ -52,7 +55,7 @@ public class MaintCli {
                         .setLocation("Road")
                         .build()
         );
-
+        //sending reports to server with 1second delay
         for (MaintenanceRequest report : reports) {
             requestObserver.onNext(report);
             try {
@@ -61,7 +64,7 @@ public class MaintCli {
                 e.printStackTrace();
             }
         }
-
+        //telling server that we have finished sending reports
         requestObserver.onCompleted();
     }
 }

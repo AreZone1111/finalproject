@@ -14,6 +14,7 @@ public class AnalysisServ {
             jmdns.registerService(serviceInfo);
             System.out.println(name + " registered with jmDNS, on port " + port);
         } catch (Exception e) {
+        	//for jmDNS registration error
             System.err.println("registration failed: " + e.getMessage());
         }
     }
@@ -37,20 +38,20 @@ public class AnalysisServ {
         public void analyzeSensorData(SensorData request, StreamObserver<AnalysisResult> responseObserver) {
             String status;
             String message;
-
-            if (request.getTemperature() > 28 || request.getVibration() > 4) {
+            //this is how we check if readings are abnormal or normal
+            if (request.getTemperature() > 29 || request.getVibration() > 5) {
                 status = "WARNING";
                 message = "Abnormal temperature or vibration detected";
             } else {
                 status = "OK";
                 message = "Sensor readings are in normal rang";
             }
-
+            //builds analysis result
             AnalysisResult result = AnalysisResult.newBuilder()
                     .setStatus(status)
                     .setMessage(message)
                     .build();
-
+            //sending results to client
             responseObserver.onNext(result);
             responseObserver.onCompleted();
         }

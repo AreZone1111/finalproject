@@ -10,7 +10,7 @@ import javax.jmdns.ServiceInfo;
 import javax.swing.JOptionPane;
 import java.net.InetAddress;
 public class SensCli {
-
+	//we use to discover server with jmDNS service
     private static ServiceInfo discoverService(String type) {
         try {
             JmDNS jmdns = JmDNS.create(InetAddress.getLocalHost());
@@ -94,13 +94,14 @@ public class SensCli {
 
             @Override
             public void onCompleted() {
+            	//for streaming completion and shutdown channel
                 System.out.println("Stream is completed.");
                 sensorChannel.shutdown();
                 analysisChannel.shutdown();
             }
         });
 
-        //this will keep the client alive when the stream runs
+        //this will keep the client alive when the stream runs 
         try {
             Thread.sleep(15000);
         } catch (InterruptedException e) {
